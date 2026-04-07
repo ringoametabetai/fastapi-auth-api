@@ -37,8 +37,13 @@ GET /me
 
 Authorization: Bearer <access_token>
 
-
 ## 実行方法
 
 ```bash
 uvicorn main:app --reload
+```
+
+## 工夫点
+- パスワードは平文で保存せず、argon2でハッシュ化
+- 認証失敗時のメッセージを統一し、ユーザー存在の推測を防止
+- JWTを用いた認証機構を実装
