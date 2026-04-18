@@ -1,21 +1,30 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone # 時間を扱う標準ライブラリ datetime : 現在時刻を取る
+# timedelta : 〇分後、〇時間後を作る timezone : UTCなどのタイムゾーン
 
-from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from jose import JWTError, jwt
+from fastapi import FastAPI, HTTPException, Depends, status # HTTPException : エラーを返す status : HTTPステータスコードを定数で扱える
+# Depends : 依存関係を解決する仕組み。例：「この関数を実行する前に、〇〇を実行する」
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm # 認証関連
+# OAuth2PasswordBearer : Authorizationヘッダーからトークンを取り出す装置
+# OAuth2PasswordRequestForm : ログインフォームを受け取る
+from pydantic import BaseModel # データの型チェック＆整形
+from jose import JWTError, jwt # JWTの処理 jwt : トークンを作る＆読み取る # JWTError : トークンが壊れていたときのエラー
 
 import models
 from database import engine, SessionLocal
 from models import User
 from pwdlib import PasswordHash
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # =========================
 # 設定
 # =========================
-SECRET_KEY = "your-secret-key-please-change-this"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 # トークンの有効期限
 
 password_hash = PasswordHash.recommended()
 
@@ -37,7 +46,6 @@ class UserCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-
 
 class UserResponse(BaseModel):
     id: int
