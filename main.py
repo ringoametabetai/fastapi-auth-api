@@ -1,43 +1,37 @@
-from datetime import datetime, timedelta, timezone # 時間を扱う標準ライブラリ datetime : 現在時刻を取る
-# timedelta : 〇分後、〇時間後を作る timezone : UTCなどのタイムゾーン
+from datetime import datetime, timedelta, timezone
+import os
 
-from fastapi import FastAPI, HTTPException, Depends, status # HTTPException : エラーを返す status : HTTPステータスコードを定数で扱える
-# Depends : 依存関係を解決する仕組み。例：「この関数を実行する前に、〇〇を実行する」
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm # 認証関連
-# OAuth2PasswordBearer : Authorizationヘッダーからトークンを取り出す装置
-# OAuth2PasswordRequestForm : ログインフォームを受け取る
-from pydantic import BaseModel # データの型チェック＆整形
-from jose import JWTError, jwt # JWTの処理 jwt : トークンを作る＆読み取る # JWTError : トークンが壊れていたときのエラー
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from pydantic import BaseModel
+from pwdlib import PasswordHash
 
 import models
 from database import engine, SessionLocal
 from models import User
-from pwdlib import PasswordHash
-
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
-# =========================
-# 設定
-# =========================
+# アプリ設定
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30 # トークンの有効期限
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# パスワードハッシュ設定
 password_hash = PasswordHash.recommended()
 
 app = FastAPI()
 
+# テーブル作成
 models.Base.metadata.create_all(bind=engine)
 
+# Bearerトークンを受け取る設定
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
-# =========================
-# Pydanticモデル
-# =========================
+# リクエスト・レスポンス用スキーマ
 class UserCreate(BaseModel):
     username: str
     password: str
@@ -47,6 +41,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class UserResponse(BaseModel):
     id: int
     username: str
@@ -55,20 +50,17 @@ class UserResponse(BaseModel):
         from_attributes = True
 
 
-# =========================
-# パスワード関連
-# =========================
+# パスワードをハッシュ化
 def get_password_hash(password: str):
     return password_hash.hash(password)
 
 
+# 入力パスワードと保存済みハッシュを照合
 def verify_password(plain_password: str, hashed_password: str):
     return password_hash.verify(plain_password, hashed_password)
 
 
-# =========================
-# JWT関連
-# =========================
+# JWTアクセストークンを作成
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
 
@@ -82,9 +74,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-# =========================
-# DBからユーザー取得
-# =========================
+# usernameでユーザーを1件取得
 def get_user_by_username(username: str):
     db = SessionLocal()
     user = db.query(User).filter(User.username == username).first()
@@ -92,9 +82,7 @@ def get_user_by_username(username: str):
     return user
 
 
-# =========================
-# 現在のユーザー取得
-# =========================
+# トークンから現在のユーザーを取得
 def get_current_user(token: str = Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -117,14 +105,12 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-# =========================
-# ルーティング
-# =========================
 @app.get("/")
 def read_root():
     return {"message": "Hello"}
 
 
+# ユーザー登録
 @app.post("/users")
 def create_user(user: UserCreate):
     db = SessionLocal()
@@ -148,6 +134,7 @@ def create_user(user: UserCreate):
     return {"message": "User created"}
 
 
+# ログイン認証とJWT発行
 @app.post("/login", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     db = SessionLocal()
@@ -173,6 +160,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     }
 
 
+# ユーザー一覧取得
 @app.get("/users", response_model=list[UserResponse])
 def get_users():
     db = SessionLocal()
@@ -181,6 +169,7 @@ def get_users():
     return users
 
 
+# ログイン中のユーザー情報を取得
 @app.get("/me", response_model=UserResponse)
 def read_me(current_user: User = Depends(get_current_user)):
     return current_user
