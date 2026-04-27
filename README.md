@@ -53,9 +53,32 @@ cd fastapi-auth-api
 ```
 
 2. 仮想環境を作成・有効化
+
+まず、仮想環境を作成します。
+
 ```bash
 python -m venv venv
+```
+
+次に、使用している環境に合わせて仮想環境を有効化します。
+
+Windows PowerShell の場合:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
+```
+
+Windows コマンドプロンプトの場合:
+
+```cmd
 venv\Scripts\activate
+```
+
+macOS / Linux の場合:
+
+```bash
+source venv/bin/activate
 ```
 
 3. 必要なライブラリをインストール
