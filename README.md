@@ -42,6 +42,8 @@ FastAPIとSQLAlchemyを用いて作成した、JWT認証付きのユーザー管
 Authorization: Bearer <access_token>
 ```
 
+Swagger UI（`/docs`）を使用する場合は、右上の「Authorize」ボタンからユーザー名とパスワードを入力することで、自動的にJWTが取得・付与されます。
+
 ## セットアップ方法
 
 1. リポジトリをクローン
