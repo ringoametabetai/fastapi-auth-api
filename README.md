@@ -48,7 +48,7 @@ Swagger UI（`/docs`）を使用する場合は、右上の「Authorize」ボタ
 
 1. リポジトリをクローン
 ```bash
-git clone <リポジトリURL>
+git clone https://github.com/ringoametabetai/fastapi-auth-api.git
 cd fastapi-auth-api
 ```
 
