@@ -91,10 +91,14 @@ pip install fastapi uvicorn sqlalchemy python-jose[cryptography] pwdlib python-d
 ```bash
 SECRET_KEY=your_secret_key_here
 ```
+your_secret_key_here の部分は、任意のランダムな文字列に置き換えてください。
 
 5. アプリを起動
+
+仮想環境を有効化した状態で、以下のコマンドを実行します。
+
 ```bash
-uvicorn main:app --reload
+python -m uvicorn main:app --reload
 ```
 
 6. Swagger UIで動作確認
@@ -104,10 +108,19 @@ http://127.0.0.1:8000/docs
 ```
 
 ## 動作確認の流れ
-1. POST /users でユーザー登録
-2. POST /login でログインし、JWTを取得
-3. 右上の Authorize から認証
-4. GET /me でログイン中のユーザー情報を確認
+
+Swagger UI（`/docs`）で確認する場合:
+
+1. `POST /users` でユーザー登録
+2. 右上の `Authorize` から、登録したユーザー名とパスワードを入力して認証
+3. `GET /me` でログイン中のユーザー情報を確認
+
+手動でJWTを確認する場合:
+
+1. `POST /users` でユーザー登録
+2. `POST /login` でログインし、JWTを取得
+3. 取得したJWTを `Authorization: Bearer <access_token>` の形式で付与
+4. `GET /me` でログイン中のユーザー情報を確認
 
 ## 工夫した点
 - パスワードは平文で保存せず、argon2でハッシュ化
