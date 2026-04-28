@@ -83,7 +83,7 @@ source venv/bin/activate
 
 3. 必要なライブラリをインストール
 ```bash
-pip install fastapi uvicorn sqlalchemy python-jose[cryptography] pwdlib python-dotenv python-multipart
+python -m pip install fastapi uvicorn sqlalchemy python-jose[cryptography] pwdlib python-dotenv python-multipart
 ```
 
 4. .env ファイルを作成
@@ -137,9 +137,8 @@ Swagger UI（`/docs`）で確認する場合:
 - 環境変数を使った機密情報の管理
 
 ## 今後の改善点
-- Depends を使ったDBセッション管理の改善
 - schemas.py への分割
-- 例外処理の整理
+- 例外処理・エラーレスポンスの整理
 - Alembicを使ったマイグレーション管理
 - Docker対応
 
